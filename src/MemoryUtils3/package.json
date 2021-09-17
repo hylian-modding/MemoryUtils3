@@ -1,0 +1,17 @@
+{
+  "name": "MemoryUtils3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "core": "*",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash.clonedeep": "^4.5.0",
+    "mips-inst": "^3.0.0"
+  }
+}

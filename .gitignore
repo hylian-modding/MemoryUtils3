@@ -1,0 +1,7 @@
+build
+cores
+dist
+node_modules
+modloader64-config.json
+modloader64-p2-config.json
+src/MemoryUtils3/MemoryUtils/ignore.ts

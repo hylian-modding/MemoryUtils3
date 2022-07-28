@@ -2,27 +2,29 @@ import IMemory from "modloader64_api/IMemory";
 import { bool_ref, Col, FontRef, IImGui, InputTextFlags, MouseButton, number_ref, string_ref, StyleVar, TabBarFlags, TabItemFlags, WindowFlags } from "modloader64_api/Sylvain/ImGui"
 import { Scancode } from "modloader64_api/Sylvain/Keybd";
 import { vec2, vec4, xy, xywh } from "modloader64_api/Sylvain/vec";
-import * as CommonUtils from "./CommonUtils"
 import { bus, EventHandler, setupEventHandlers } from "modloader64_api/EventHandler";
+import { GenerateImGuiReferences } from "modloader64_api/Macros/ImGuiMacros"
+import * as CommonUtils from "./CommonUtils"
 
+@GenerateImGuiReferences()
 export class MemoryViewerTab {
     // is tab currently focused?
-    _open: bool_ref = [false];
+    __ref_open: bool_ref = [false];
 
     // base address
-    _address: number_ref = [0x80000000];
+    __ref_address: number_ref = [0x80000000];
 
     // inputInt is signed and 32 bit! aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhhhhhhhhhhhh! Why?!
-    _addressRef: string_ref = ["80000000"]
+    __ref_addressRef: string_ref = ["80000000"]
 
     // left-hand-side of cursor in nibble-space
-    _cursorStart: number_ref = [CommonUtils.AddressToNibble(0x80000000)];
+    __ref_cursorStart: number_ref = [CommonUtils.AddressToNibble(0x80000000)];
 
     // right-hand-side of cursor in nibble-space
-    _cursorEnd: number_ref = [CommonUtils.AddressToNibble(0x80000000)];
+    __ref_cursorEnd: number_ref = [CommonUtils.AddressToNibble(0x80000000)];
 
     // user comment
-    _note: string_ref = [""];
+    __ref_note: string_ref = [""];
 
     open!: boolean
     address!: number
@@ -32,7 +34,6 @@ export class MemoryViewerTab {
     note!: string
 
     constructor(address: number = 0x80000000, open: boolean = true) {
-        CommonUtils.MacroScriptTM(this);
         this.address = address;
         this.addressRef = address.toString(16)
         this.cursorStart = CommonUtils.AddressToNibble(address);
@@ -41,46 +42,47 @@ export class MemoryViewerTab {
     }
 
     get cursorAddress(): number {
-        return Math.floor(this._cursorStart[0] / 2);
+        return Math.floor(this.__ref_cursorStart[0] / 2);
     }
 
     set cursorAddress(value: number) {
-        this._cursorStart[0] = value * 2;
+        this.__ref_cursorStart[0] = value * 2;
     }
 
     get cursorStartNibble(): number {
-        return this._cursorStart[0] % 2;
+        return this.__ref_cursorStart[0] % 2;
     }
 
     get cursorEndNibble(): number {
-        return this._cursorEnd[0] % 2;
+        return this.__ref_cursorEnd[0] % 2;
     }
 
     get cursorNibble(): number {
-        return this._cursorStart[0] % 2;
+        return this.__ref_cursorStart[0] % 2;
     }
 }
 
+@GenerateImGuiReferences()
 export class MemoryViewerSettings {
-    _uppercaseHex: bool_ref = [true];
-    _showText: bool_ref = [true];
-    _altColorColumns: bool_ref = [true];
-    _altColorRows: bool_ref = [true];
-    _darkZero: bool_ref = [true];
-    _groupDarkZero: bool_ref = [true];
-    _alignColumns: bool_ref = [true];
-    _visualizeDebug: bool_ref = [false];
-    _byteGrouping: number_ref = [4];
-    _forceColumns: number_ref = [0];
-    _forceRows: number_ref = [0];
-    _charSizePadding: number_ref = [1];
-    _cellSizePadding: number_ref = [4];
-    _cellGroupPadding: number_ref = [6];
-    _horizontalPadding: number_ref = [6];
-    _verticalPadding: number_ref = [2];
-    _invalidAddrString: string_ref = ["********"];
-    _invalidHexString: string_ref = ["**"];
-    _invalidTextString: string_ref = ["."];
+    __ref_uppercaseHex: bool_ref = [true];
+    __ref_showText: bool_ref = [true];
+    __ref_altColorColumns: bool_ref = [true];
+    __ref_altColorRows: bool_ref = [true];
+    __ref_darkZero: bool_ref = [true];
+    __ref_groupDarkZero: bool_ref = [true];
+    __ref_alignColumns: bool_ref = [true];
+    __ref_visualizeDebug: bool_ref = [false];
+    __ref_byteGrouping: number_ref = [4];
+    __ref_forceColumns: number_ref = [0];
+    __ref_forceRows: number_ref = [0];
+    __ref_charSizePadding: number_ref = [1];
+    __ref_cellSizePadding: number_ref = [4];
+    __ref_cellGroupPadding: number_ref = [6];
+    __ref_horizontalPadding: number_ref = [6];
+    __ref_verticalPadding: number_ref = [2];
+    __ref_invalidAddrString: string_ref = ["********"];
+    __ref_invalidHexString: string_ref = ["**"];
+    __ref_invalidTextString: string_ref = ["."];
 
     uppercaseHex!: boolean;
     showText!: boolean;
@@ -103,16 +105,13 @@ export class MemoryViewerSettings {
     invalidTextString!: string;
 
     byteCheckBuffer: Buffer = Buffer.alloc(4)
-
-    constructor() {
-        CommonUtils.MacroScriptTM(this);
-    }
 }
 
+@GenerateImGuiReferences()
 export class MemoryViewer {
-    _open: bool_ref = [true];
-    _selected: bool_ref = [false];
-    _openSettings: bool_ref = [false]
+    __ref_open: bool_ref = [true];
+    __ref_selected: bool_ref = [false];
+    __ref_openSettings: bool_ref = [false]
     tabs: MemoryViewerTab[] = [new MemoryViewerTab()];
     tab: number = 0;
     next_tab: number = -1;
@@ -126,25 +125,21 @@ export class MemoryViewer {
     settingsDrawnThisFrame: boolean = false
     title: string = "Memory Viewer";
 
-    constructor() {
-        CommonUtils.MacroScriptTM(this);
-    }
-
     GetHexColumnOffset(column: number, cellSizeX: number, cellGroupPadding: number): number {
         return Math.ceil(column * cellSizeX) + (Math.floor(column / this.settings.byteGrouping) * cellGroupPadding);
     }
 
     DrawOptionsMenu(ImGui: IImGui) {
-        if (ImGui.begin("Memory Viewer Settings###" + this.title + "settings", this._openSettings)) {
-            ImGui.checkbox("Uppercase Hex", this.settings._uppercaseHex);
-            ImGui.checkbox("Display Text", this.settings._showText);
-            ImGui.checkbox("Alternating Column Colors", this.settings._altColorColumns);
-            ImGui.checkbox("Alternating Row Colors", this.settings._altColorRows);
-            ImGui.checkbox("Darken Zeroes", this.settings._darkZero);
-            ImGui.checkbox("Use grouping for Darken Zeroes", this.settings._groupDarkZero);
-            ImGui.checkbox("Align Columns", this.settings._alignColumns);
-            ImGui.checkbox("Visualize Debug", this.settings._visualizeDebug);
-            if (ImGui.inputInt("Byte Grouping", this.settings._byteGrouping, 2, undefined,
+        if (ImGui.begin("Memory Viewer Settings###" + this.title + "settings", this.__ref_openSettings)) {
+            ImGui.checkbox("Uppercase Hex", this.settings.__ref_uppercaseHex);
+            ImGui.checkbox("Display Text", this.settings.__ref_showText);
+            ImGui.checkbox("Alternating Column Colors", this.settings.__ref_altColorColumns);
+            ImGui.checkbox("Alternating Row Colors", this.settings.__ref_altColorRows);
+            ImGui.checkbox("Darken Zeroes", this.settings.__ref_darkZero);
+            ImGui.checkbox("Use grouping for Darken Zeroes", this.settings.__ref_groupDarkZero);
+            ImGui.checkbox("Align Columns", this.settings.__ref_alignColumns);
+            ImGui.checkbox("Visualize Debug", this.settings.__ref_visualizeDebug);
+            if (ImGui.inputInt("Byte Grouping", this.settings.__ref_byteGrouping, 2, undefined,
             InputTextFlags.CharsHexadecimal
             | InputTextFlags.CharsNoBlank
             | (this.settings.uppercaseHex ? InputTextFlags.CharsUppercase : InputTextFlags.None)
@@ -155,22 +150,22 @@ export class MemoryViewer {
                 this.settings.byteCheckBuffer = Buffer.alloc(this.settings.byteGrouping)
             }
 
-            if (ImGui.inputInt("Force Column Amount (0 = auto)", this.settings._forceColumns)) {
-                if (this.settings._forceColumns[0] < 0) this.settings._forceColumns[0] = 0;
+            if (ImGui.inputInt("Force Column Amount (0 = auto)", this.settings.__ref_forceColumns)) {
+                if (this.settings.__ref_forceColumns[0] < 0) this.settings.__ref_forceColumns[0] = 0;
             }
 
-            if (ImGui.inputInt("Force Row Amount", this.settings._forceRows)) {
-                if (this.settings._forceRows[0] < 0) this.settings._forceRows[0] = 0;
+            if (ImGui.inputInt("Force Row Amount", this.settings.__ref_forceRows)) {
+                if (this.settings.__ref_forceRows[0] < 0) this.settings.__ref_forceRows[0] = 0;
             }
 
-            ImGui.inputInt("Character Size Padding", this.settings._charSizePadding);
-            ImGui.inputInt("Cell Size Padding", this.settings._cellSizePadding);
-            ImGui.inputInt("Cell Group Padding", this.settings._cellGroupPadding);
-            ImGui.inputInt("Horizontal Padding", this.settings._horizontalPadding);
-            ImGui.inputInt("Vertical Padding", this.settings._verticalPadding);
-            ImGui.inputText("Invalid Address Text", this.settings._invalidAddrString);
-            ImGui.inputText("Invalid Hex Text", this.settings._invalidHexString);
-            ImGui.inputText("Invalid Text Text", this.settings._invalidTextString);
+            ImGui.inputInt("Character Size Padding", this.settings.__ref_charSizePadding);
+            ImGui.inputInt("Cell Size Padding", this.settings.__ref_cellSizePadding);
+            ImGui.inputInt("Cell Group Padding", this.settings.__ref_cellGroupPadding);
+            ImGui.inputInt("Horizontal Padding", this.settings.__ref_horizontalPadding);
+            ImGui.inputInt("Vertical Padding", this.settings.__ref_verticalPadding);
+            ImGui.inputText("Invalid Address Text", this.settings.__ref_invalidAddrString);
+            ImGui.inputText("Invalid Hex Text", this.settings.__ref_invalidHexString);
+            ImGui.inputText("Invalid Text Text", this.settings.__ref_invalidTextString);
         }
         ImGui.end();
     }
@@ -213,14 +208,14 @@ export class MemoryViewer {
 
         posY = ImGui.getCursorScreenPos().y;
         ImGui.setNextItemWidth(10 * charSizeX);
-        if (ImGui.inputText("Address", currentTab._addressRef,
+        if (ImGui.inputText("Address", currentTab.__ref_addressRef,
                 InputTextFlags.CharsHexadecimal
                 | InputTextFlags.CharsNoBlank
                 | (this.settings.uppercaseHex ? InputTextFlags.CharsUppercase : InputTextFlags.None)
                 | InputTextFlags.EnterReturnsTrue
                 | InputTextFlags.NoHorizontalScroll)) {
                 // initialize stuff here
-                currentTab.address = parseInt(currentTab._addressRef[0], 16);
+                currentTab.address = parseInt(currentTab.__ref_addressRef[0], 16);
                 currentTab.cursorStart = (currentTab.address * 2);
                 currentTab.cursorEnd = (currentTab.address * 2);
                 console.log("Address changed to " + currentTab.address.toString(16));
@@ -295,8 +290,8 @@ export class MemoryViewer {
 
             bytesPerRow = columns;
 
-            if (this.settings._forceRows[0] == 0) rows = Math.floor(bodySize.y / cellSizeY) - 1;
-            else rows = this.settings._forceRows[0];
+            if (this.settings.__ref_forceRows[0] == 0) rows = Math.floor(bodySize.y / cellSizeY) - 1;
+            else rows = this.settings.__ref_forceRows[0];
 
             if (columns < 0) columns = 0;
             if (rows < 0) rows = 0;
@@ -386,7 +381,7 @@ export class MemoryViewer {
                 address = currentTab.address + (bytesPerRow * index);
 
                 if (address >= 0x80000000) tempString = CommonUtils.PadAddress(address);
-                else tempString = this.settings._invalidAddrString[0];
+                else tempString = this.settings.__ref_invalidAddrString[0];
 
                 ImGui.sameLine(columnAddressStart, 0);
                 ImGui.textDisabled(tempString);
@@ -441,7 +436,7 @@ export class MemoryViewer {
                             }
                         }
                     }
-                    else ImGui.textDisabled(this.settings._invalidHexString[0]);
+                    else ImGui.textDisabled(this.settings.__ref_invalidHexString[0]);
 
                     if (this.settings.showText) {
                         ImGui.sameLine(posY)
@@ -449,13 +444,13 @@ export class MemoryViewer {
                             let value = memory.rdramReadBuffer(bddress, 1);
                             tempString = value.toString("ascii");
 
-                            if (value.readUInt8(0) === 0 && this.settings.darkZero) ImGui.textDisabled(this.settings._invalidTextString[0]);
+                            if (value.readUInt8(0) === 0 && this.settings.darkZero) ImGui.textDisabled(this.settings.__ref_invalidTextString[0]);
                             else {
                                 if (tempNum) ImGui.textDisabled(tempString)
                                 else ImGui.text(tempString);
                             }
                         }
-                        else ImGui.textDisabled(this.settings._invalidTextString[0]);
+                        else ImGui.textDisabled(this.settings.__ref_invalidTextString[0]);
                     }
                 }
 
@@ -550,8 +545,8 @@ export class MemoryViewer {
                 }
 
                 if (!shift && deltaNibbles) {
-                    currentTab._cursorStart[0] += deltaNibbles;
-                    currentTab._cursorEnd[0] += deltaNibbles;
+                    currentTab.__ref_cursorStart[0] += deltaNibbles;
+                    currentTab.__ref_cursorEnd[0] += deltaNibbles;
                 }
 
                 if (ctrl && space) {
@@ -703,7 +698,7 @@ export class MemoryViewer {
         }
 
         if (titleOverride) title = titleOverride
-        if (ImGui.begin(title + "###" + title + "Window", this._open, WindowFlags.NoScrollbar | WindowFlags.NoScrollWithMouse | WindowFlags.NoSavedSettings)) {
+        if (ImGui.begin(title + "###" + title + "Window", this.__ref_open, WindowFlags.NoScrollbar | WindowFlags.NoScrollWithMouse | WindowFlags.NoSavedSettings)) {
             windowSize = ImGui.calcTextSize("F");
             charSizeX = windowSize.x + this.settings.charSizePadding;
 
@@ -716,7 +711,7 @@ export class MemoryViewer {
                 }
 
                 ImGui.setNextItemWidth(10 * charSizeX);
-                if (ImGui.beginTabItem(this.tabs[index].address.toString(16).toUpperCase() + "###" + title + index.toString(), this.tabs[index]._open, tabFlags)) {
+                if (ImGui.beginTabItem(this.tabs[index].address.toString(16).toUpperCase() + "###" + title + index.toString(), this.tabs[index].__ref_open, tabFlags)) {
                     this.DrawTab(memory, ImGui, fontNorm, fontSmall, index)
                     ImGui.endTabItem();
                 }

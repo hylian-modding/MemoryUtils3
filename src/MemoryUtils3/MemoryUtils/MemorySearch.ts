@@ -1,7 +1,7 @@
 import IMemory from "modloader64_api/IMemory"
 import { bool_ref, Col, IImGui, InputTextFlags, string_ref, StyleVar, TabBarFlags, TabItemFlags, WindowFlags } from "modloader64_api/Sylvain/ImGui"
 import { vec2, xy, xywh } from "modloader64_api/Sylvain/vec"
-import { MacroScriptTM } from "./CommonUtils"
+import { GenerateImGuiReferences } from "modloader64_api/Macros/ImGuiMacros"
 
 export const enum MemorySearchDataType {
     L8,
@@ -57,19 +57,17 @@ export class MemorySearchData {
     }
 }
 
+@GenerateImGuiReferences()
 export class MemorySearchSettings {
     data_type: MemorySearchDataType = MemorySearchDataType.L32
     data_hex: boolean = false
 
     condition: MemorySearchCondition = MemorySearchCondition.EQUALS
-    _condition_not: bool_ref = [false]
+    __ref_condition_not: bool_ref = [false]
     condition_not!: boolean
-
-    constructor() {
-        MacroScriptTM(this)
-    }
 }
 
+@GenerateImGuiReferences()
 export class MemorySearchTab {
     data: MemorySearchData[] = []
     data_saved: MemorySearchData[] = []
@@ -78,24 +76,24 @@ export class MemorySearchTab {
 
     current_snapshot?: Buffer
 
-    _open: bool_ref = [true]
+    __ref_open: bool_ref = [true]
     open!: boolean;
 
-    _input: string_ref = [""]
+    __ref_input: string_ref = [""]
     input!: string
 
     shouldSearch = 0
 
     constructor(title: string = "") {
         this.title = title
-        MacroScriptTM(this)
     }
 }
 
+@GenerateImGuiReferences()
 export class MemorySearch {
-    _open: bool_ref = [true]
-    _selected: bool_ref = [false]
-    _title: string_ref = [""]
+    __ref_open: bool_ref = [true]
+    __ref_selected: bool_ref = [false]
+    __ref_title: string_ref = [""]
 
     open!: boolean;
     selected!: boolean;
@@ -106,10 +104,6 @@ export class MemorySearch {
     initial: boolean = false
 
     size: vec2 = xy(320, 240)
-
-    constructor() {
-        MacroScriptTM(this)
-    }
 
     DrawTab(memory: IMemory, ImGui: IImGui, tabIndex: number) {
         let charSize: vec2 = ImGui.calcTextSize("F")
@@ -126,9 +120,9 @@ export class MemorySearch {
             ImGui.beginChild("frame 0###f0" + this.title, this.size, true)
             {
                 ImGui.pushStyleVar(StyleVar.ItemSpacing, spacing)
-                ImGui.inputText("Value###MemorySearchValue" + this.title, currentTab._input, InputTextFlags.CharsUppercase)
+                ImGui.inputText("Value###MemorySearchValue" + this.title, currentTab.__ref_input, InputTextFlags.CharsUppercase)
                 ImGui.sameLine()
-                ImGui.checkbox("Hex###MemorySearchHex" + this.title, currentTab.settings._condition_not)
+                ImGui.checkbox("Hex###MemorySearchHex" + this.title, currentTab.settings.__ref_condition_not)
 
                 if (ImGui.beginCombo("Condition###MemorySearchConditionCombo" + this.title, MemorySearchCondition_[currentTab.settings.condition])) {
                     for (index = 0; index < MemorySearchCondition.COUNT; index++) {
@@ -244,7 +238,7 @@ export class MemorySearch {
             this.tabs.push(new MemorySearchTab())
         }
 
-        if (ImGui.begin("Memory Search###" + this.title + "Window", this._open, WindowFlags.NoScrollbar | WindowFlags.NoScrollWithMouse | WindowFlags.NoSavedSettings)) {
+        if (ImGui.begin("Memory Search###" + this.title + "Window", this.__ref_open, WindowFlags.NoScrollbar | WindowFlags.NoScrollWithMouse | WindowFlags.NoSavedSettings)) {
             ImGui.beginTabBar("MemorySearchTabs###" + this.title + "SearchTabs", TabBarFlags.Reorderable | TabBarFlags.AutoSelectNewTabs | TabBarFlags.FittingPolicyResizeDown)
             {
                 for (index = 0; index < this.tabs.length; index++) {
@@ -255,7 +249,7 @@ export class MemorySearch {
                     }
 
                     ImGui.setNextItemWidth(10 * charSize.x);
-                    if (ImGui.beginTabItem(index.toString() + ": " + this.tabs[index].title + "###SearchTab" + this.title + index.toString(), this.tabs[index]._open, tabFlags)) {
+                    if (ImGui.beginTabItem(index.toString() + ": " + this.tabs[index].title + "###SearchTab" + this.title + index.toString(), this.tabs[index].__ref_open, tabFlags)) {
                         this.DrawTab(memory, ImGui, index)
                         ImGui.endTabItem();
                     }

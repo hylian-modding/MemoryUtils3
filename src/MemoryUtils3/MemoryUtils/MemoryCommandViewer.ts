@@ -2,7 +2,7 @@ import * as mips from "mips-assembler-ML64/mips-inst"
 import IMemory from "modloader64_api/IMemory"
 import { bool_ref, Col, FontRef, IImGui, InputTextFlags, number_ref, string_ref, TabBarFlags, TabItemFlags, WindowFlags } from "modloader64_api/Sylvain/ImGui"
 import { vec2, vec4, xy, xywh } from "modloader64_api/Sylvain/vec"
-import { MacroScriptTM } from "./CommonUtils"
+import { GenerateImGuiReferences } from "modloader64_api/Macros/ImGuiMacros"
 import * as filesystem from "fs"
 import { bus } from "modloader64_api/EventHandler"
 import { BpTriggerInfo, DebuggerEvents } from "modloader64_api/Sylvain/Debugger"
@@ -70,11 +70,12 @@ class BranchListItem {
     }
 }
 
+@GenerateImGuiReferences()
 export class MemoryCommandViewerTab {
-    _open: bool_ref = [false]
-    _address: number_ref = [0x80000000]
-    _address_ref: string_ref = ["0x80000000"]
-    _note: string_ref = [""]
+    __ref_open: bool_ref = [false]
+    __ref_address: number_ref = [0x80000000]
+    __ref_address_ref: string_ref = ["0x80000000"]
+    __ref_note: string_ref = [""]
 
     open!: boolean
     address!: number
@@ -82,8 +83,6 @@ export class MemoryCommandViewerTab {
     note!: string
 
     constructor(address?: number) {
-        MacroScriptTM(this)
-
         if (address !== undefined) {
             this.address = address
             this.address_ref = address.toString(16)
@@ -93,8 +92,9 @@ export class MemoryCommandViewerTab {
     }
 }
 
+@GenerateImGuiReferences()
 export class MemoryCommandViewerSettings {
-    _charsUppercase: bool_ref = [true]
+    __ref_charsUppercase: bool_ref = [true]
 
     charsUppercase!: boolean
 
@@ -115,23 +115,20 @@ export class MemoryCommandViewerSettings {
 
     // other settings
     casing: string = "toUpperCase"
-    _immediateHex: bool_ref = [true]
-    _intelSyntax: bool_ref = [true]
-    _debugView: bool_ref = [false]
+    __ref_immediateHex: bool_ref = [true]
+    __ref_intelSyntax: bool_ref = [true]
+    __ref_debugView: bool_ref = [false]
 
 
     immediateHex!: boolean
     intelSyntax!: boolean
-
-    constructor() {
-        MacroScriptTM(this)
-    }
 }
 
+@GenerateImGuiReferences()
 export class MemoryCommandViewer {
-    _open: bool_ref = [true]
-    _selected: bool_ref = [false]
-    _title: string_ref = ["Command Viewer"]
+    __ref_open: bool_ref = [true]
+    __ref_selected: bool_ref = [false]
+    __ref_title: string_ref = ["Command Viewer"]
 
     open!: boolean;
     selected!: boolean;
@@ -143,8 +140,6 @@ export class MemoryCommandViewer {
     initial: boolean = true
 
     constructor() {
-        MacroScriptTM(this)
-
         this.tabs.push(new MemoryCommandViewerTab(0x80000000))
 
         bus.on(DebuggerEvents.UPDATE, this.onBpEvent.bind(this))
@@ -172,7 +167,7 @@ export class MemoryCommandViewer {
 
         posY = ImGui.getCursorScreenPos().y
         ImGui.setNextItemWidth(12 * charSize.x)
-        if (ImGui.inputText("Address", currentTab._address_ref,
+        if (ImGui.inputText("Address", currentTab.__ref_address_ref,
                 InputTextFlags.CharsHexadecimal
                 | InputTextFlags.CharsNoBlank
                 | (this.settings.charsUppercase ? InputTextFlags.CharsUppercase : InputTextFlags.None)
@@ -256,7 +251,7 @@ export class MemoryCommandViewer {
                     len_pad2 = xOffset - len_pad2
                 }
 
-                if (this.settings._debugView[0]) {
+                if (this.settings.__ref_debugView[0]) {
                     let rand = mulberry32(instruction_address + xOffset)
                     let r = rand()
                     let g = rand()
@@ -792,7 +787,7 @@ export class MemoryCommandViewer {
             this.tabs.push(new MemoryCommandViewerTab())
         }
 
-        if (ImGui.begin("Command Viewer###" + this.title + "Window", this._open, WindowFlags.NoScrollbar | WindowFlags.NoScrollWithMouse | WindowFlags.NoSavedSettings)) {
+        if (ImGui.begin("Command Viewer###" + this.title + "Window", this.__ref_open, WindowFlags.NoScrollbar | WindowFlags.NoScrollWithMouse | WindowFlags.NoSavedSettings)) {
             ImGui.pushFont(fontNorm);
             ImGui.beginTabBar("CommandViewerTabs###" + this.title + "CommandTabs", TabBarFlags.Reorderable | TabBarFlags.AutoSelectNewTabs | TabBarFlags.FittingPolicyResizeDown)
             {
@@ -804,7 +799,7 @@ export class MemoryCommandViewer {
                     }
 
                     ImGui.setNextItemWidth(10 * charSize.x);
-                    if (ImGui.beginTabItem(this.tabs[index].address.toString(16).toUpperCase() + "###CommandViewTab" + this.title + index.toString(), this.tabs[index]._open, tabFlags)) {
+                    if (ImGui.beginTabItem(this.tabs[index].address.toString(16).toUpperCase() + "###CommandViewTab" + this.title + index.toString(), this.tabs[index].__ref_open, tabFlags)) {
                         this.DrawTab(memory, ImGui, index)
                         ImGui.endTabItem();
                     }

@@ -56,7 +56,7 @@ export class MemoryUtilsManager {
                 }
             }
 
-            this.memoryViewer[0]._selected[0] = true
+            this.memoryViewer[0].__ref_selected[0] = true
             if (tabIndex !== -1) {
                 this.memoryViewer[0].tab = tabIndex;
                 this.memoryViewer[0].next_tab = tabIndex;

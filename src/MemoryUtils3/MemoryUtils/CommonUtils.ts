@@ -5,21 +5,6 @@ import fs from "fs"
 import IMemory from "modloader64_api/IMemory";
 const cloneDeep = require("lodash.clonedeep");
 
-export function MacroScriptTM(instance: any) {
-    Object.keys(instance).forEach((key: string) => {
-        if (key.startsWith("_")) {
-            Object.defineProperty(instance, key.substring(1, key.length), {
-                get: () => {
-                    return instance[key][0]
-                },
-                set: (value: any) => {
-                    instance[key][0] = value
-                }
-            })
-        }
-    })
-}
-
 export function Memset(address: number, length: number, set: number, memory: IMemory) {
     let fillBuf: Buffer = Buffer.alloc(length, set);
     memory.rdramWriteBuffer(address, fillBuf);

@@ -11,10 +11,6 @@ import { MemoryUtilsManager } from './MemoryUtils/MemoryUtilsManager';
 let ImGui: IImGui
 let gMemUtils: MemoryUtilsManager
 
-let texture: Texture
-let ix = 0
-let iy = 0
-
 // Testy debugger stuff, TODO: Move somewhere relevant
 export class CBpStruct implements BpStruct {
     address: number = 0

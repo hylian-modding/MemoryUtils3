@@ -1,4 +1,4 @@
-import * as mips from "mips-inst"
+import * as mips from "mips-assembler-ML64/mips-inst"
 import IMemory from "modloader64_api/IMemory"
 import { bool_ref, Col, FontRef, IImGui, InputTextFlags, number_ref, string_ref, TabBarFlags, TabItemFlags, WindowFlags } from "modloader64_api/Sylvain/ImGui"
 import { vec2, vec4, xy, xywh } from "modloader64_api/Sylvain/vec"

@@ -12,6 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
-    "mips-inst": "^3.0.0"
+    "mips-assembler-ML64": "https://github.com/hylian-modding/mips-assembler-ML64.git"
   }
 }
